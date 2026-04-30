@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE "cars" (
+    "id" SERIAL NOT NULL,
+    "brand" TEXT NOT NULL,
+    "model" TEXT NOT NULL,
+    "year" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "cars_pkey" PRIMARY KEY ("id")
+);
