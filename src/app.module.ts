@@ -5,9 +5,16 @@ import { ArticleModule } from './article/article.module';
 import { AdvertModule } from './advert/advert.module';
 import { ArtifactModule } from './artifact/artifact.module';
 import { CarModule } from './car/car.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ArticleModule, AdvertModule, ArtifactModule, CarModule],
+  imports: [
+    ConfigModule.forRoot(),
+    ArticleModule,
+    AdvertModule,
+    ArtifactModule,
+    CarModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
