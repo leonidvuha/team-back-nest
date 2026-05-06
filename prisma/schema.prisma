@@ -1,7 +1,5 @@
 generator client {
-    provider = "prisma-client"
-    output = "../generated/prisma"
-    moduleFormat = "cjs"
+    provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,8 +12,23 @@ model Car {
     model String
     year Int
     price Decimal
-    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
     createdAt DateTime @default(now()) @map("created_at")
 
     @@map("cars")
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    id String @id @default(uuid(7))
+    email String @unique
+    password String
+    role Role @default(USER)
+    updatedAt DateTime @updatedAt @map("updated_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    @@map("users")
 }

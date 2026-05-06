@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Car } from 'generated/prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CarCreateInput } from './car.interface';
+import { Car } from '@prisma/client';
 
 @Injectable()
 export class CarRepository {
