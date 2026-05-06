@@ -4,6 +4,9 @@ import { LoginDto, RegisterDto } from './auth.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { type User } from '@prisma/client';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { toProfileResponseDto } from './auth.mapper';
 
 @Controller('/auth')
 export class AuthController {
@@ -22,6 +25,13 @@ export class AuthController {
   @Get('/me')
   @UseGuards(JwtAuthGuard) // есть ли JWT - если есть - то сохраняет тек пользователя в req
   me(@CurrentUser() user: User) {
+    return toProfileResponseDto(user);
+  }
+
+  @Get('/admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  adminOnly(@CurrentUser() user: User) {
     return user;
   }
 }

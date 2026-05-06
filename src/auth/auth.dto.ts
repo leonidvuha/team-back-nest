@@ -13,3 +13,9 @@ export const LoginSchema = z.object({
 
 export class RegisterDto extends createZodDto(RegisterSchema) {}
 export class LoginDto extends createZodDto(LoginSchema) {}
+
+export interface ProfileResponseDto {
+  id: string;
+  email: string;
+  role: string;
+}
