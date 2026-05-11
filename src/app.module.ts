@@ -8,6 +8,7 @@ import { CarModule } from './car/car.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { EventModule } from './event/event.module';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EventModule } from './event/event.module';
     CarModule,
     AuthModule,
     EventModule,
+    TodoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

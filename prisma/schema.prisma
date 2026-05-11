@@ -32,6 +32,8 @@ model User {
     createdAt DateTime @default(now()) @map("created_at")
     
     events Event[] @relation("UserEvents")
+
+    todoLinks TodoParticipant[]
     @@map("users")
 }
 
@@ -43,5 +45,28 @@ model Event {
     createdAt DateTime @default(now()) @map("created_at")
 
     participants User[] @relation("UserEvents")
+    
     @@map("events")
+}
+
+
+model Todo {
+  id    String @id @default(uuid())
+  title String
+
+  participants TodoParticipant[]
+  @@map("todos")
+}
+
+model TodoParticipant {
+  userId String
+  todoId String
+
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  todo Todo @relation(fields: [todoId], references: [id])
+
+  @@id([userId, todoId])
+  @@map("todo_participant")
 }
