@@ -4,69 +4,40 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-}
-
-model Car {
-    id Int @id @default(autoincrement())
-    brand String
-    model String
-    year Int
-    price Decimal
-    updatedAt DateTime @updatedAt @map("updated_at")
-    createdAt DateTime @default(now()) @map("created_at")
-
-    @@map("cars")
+    
 }
 
 enum Role {
     USER
     ADMIN
+    FARMER
 }
 
 model User {
-    id String @id @default(uuid(7))
-    email String @unique
-    password String
-    role Role @default(USER)
-    updatedAt DateTime @updatedAt @map("updated_at")
-    createdAt DateTime @default(now()) @map("created_at")
-    
-    events Event[] @relation("UserEvents")
+    id        String    @id @default(uuid(7))
+    email     String    @unique
+    password  String
+    role      Role      @default(USER)
+    updatedAt DateTime  @updatedAt @map("updated_at")
+    createdAt DateTime  @default(now()) @map("created_at")
 
-    todoLinks TodoParticipant[]
+    products  Product[]
+
     @@map("users")
 }
 
-// пример неявной связи - многие ко многим - без отдельной таблицы
-model Event {
-    id String @id @default(uuid(7))
-    title String
+model Product {
+    id          String   @id @default(uuid(7))
+    title       String
     description String
-    createdAt DateTime @default(now()) @map("created_at")
+    price       Decimal
+    unit        String
+    quantity    Int      @default(0)
+    userId      String
+    updatedAt   DateTime @updatedAt @map("updated_at")
+    createdAt   DateTime @default(now()) @map("created_at")
 
-    participants User[] @relation("UserEvents")
-    
-    @@map("events")
-}
+    user User @relation(fields: [userId], references: [id])
 
-
-model Todo {
-  id    String @id @default(uuid())
-  title String
-
-  participants TodoParticipant[]
-  @@map("todos")
-}
-
-model TodoParticipant {
-  userId String
-  todoId String
-
-  assignedAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-  todo Todo @relation(fields: [todoId], references: [id])
-
-  @@id([userId, todoId])
-  @@map("todo_participant")
+    @@map("products")
 }
