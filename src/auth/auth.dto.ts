@@ -3,6 +3,7 @@ import z from 'zod';
 
 export const RegisterSchema = z.object({
   email: z.string().email(),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   password: z.string().min(8, 'Min password length is 8 symbols'),
 });
 
@@ -17,5 +18,6 @@ export class LoginDto extends createZodDto(LoginSchema) {}
 export interface ProfileResponseDto {
   id: string;
   email: string;
+  fullName: string;
   role: string;
 }
