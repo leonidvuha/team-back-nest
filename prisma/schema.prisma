@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    
 }
 
 enum Role {
@@ -29,15 +28,18 @@ model User {
 model Product {
     id          String   @id @default(uuid(7))
     title       String
-    description String
+    description String?
     price       Decimal
-    unit        String
+    categoryId  Int      @map("category_id")
+    lat         Decimal
+    lng         Decimal
+    imgUrl      String?  @map("img_url")
+    unit        String?
     quantity    Int      @default(0)
-    userId      String
+    userId      String   @map("owner_id")
     updatedAt   DateTime @updatedAt @map("updated_at")
     createdAt   DateTime @default(now()) @map("created_at")
-
-    user User @relation(fields: [userId], references: [id])
+    user        User     @relation(fields: [userId], references: [id])
 
     @@map("products")
 }
