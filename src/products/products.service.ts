@@ -60,4 +60,23 @@ export class ProductsService {
       created_at: product.createdAt,
     };
   }
+
+  async findAll() {
+    const products = await this.prisma.product.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      products: products.map((p) => ({
+        id: p.id,
+        owner_id: p.ownerId,
+        category_id: p.categoryId,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        img_url: p.imageUrl,
+        created_at: p.createdAt,
+      })),
+    };
+  }
 }

@@ -5,6 +5,7 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  Get,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -23,5 +24,10 @@ export class ProductsController {
   ) {
     const ownerId = req.user.id;
     return this.productsService.create(dto, ownerId);
+  }
+
+  @Get()
+  findAll() {
+    return this.productsService.findAll();
   }
 }
