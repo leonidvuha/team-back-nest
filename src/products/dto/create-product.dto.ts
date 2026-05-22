@@ -11,6 +11,7 @@ const CreateProductSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().optional(),
   price: z.number().min(0.01).max(10000),
+  unit: z.enum(['KG', 'L', 'ST']),
   lat: z.number(),
   lng: z.number(),
   img: z.string().optional(),

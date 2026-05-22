@@ -14,11 +14,6 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-<<<<<<< HEAD
-    "ignoreDeprecations": "6.0",
-=======
-    "ignoreDeprecations": "5.0",
->>>>>>> main
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

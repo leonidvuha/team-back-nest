@@ -40,22 +40,23 @@ export class ProductsService {
         title: dto.name,
         description: dto.description ?? '',
         price: dto.price,
+        unit: dto.unit,
         categoryId: dto.category_id,
+        ownerId: ownerId,
         lat: dto.lat,
         lng: dto.lng,
-        imgUrl: img_url,
-        userId: ownerId,
+        imageUrl: img_url ?? '',
       },
     });
 
     return {
       id: product.id,
-      owner_id: product.userId,
+      owner_id: product.ownerId,
       category_id: product.categoryId,
       title: product.title,
       description: product.description,
       price: product.price,
-      img_url: product.imgUrl,
+      img_url: product.imageUrl,
       created_at: product.createdAt,
     };
   }
