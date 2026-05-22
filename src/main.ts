@@ -4,28 +4,8 @@ import { ZodValidationPipe } from 'nestjs-zod';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ZodValidationPipe());
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 8080);
 }
-bootstrap();
-
-// {
-//   method: "POST",
-//   headers: {
-//     "Accept": "Application-JSON",
-//     "Content-Type": "Application-JSON",
-//     "Authorization": "asdasddsa",
-//     "Cookie": ""
-//   },
-//   url: "http://www.google.com/users/12?important=true",
-//   body: {
-//     "name": "John"
-//   }
-// }
-
-// slug
-
-// jwt token - text
-// auth:
-//  аутентификация - кто ты такой?
-//  авторизация - есть ли право на действие?
+void bootstrap();

@@ -1,0 +1,20 @@
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
+
+const CreateProductSchema = z.object({
+  category_id: z
+    .number()
+    .int()
+    .refine((val) => [1, 2, 3].includes(val), {
+      message: 'category_id must be 1, 2, or 3',
+    }),
+  name: z.string().min(2).max(100),
+  description: z.string().optional(),
+  price: z.number().min(0.01).max(10000),
+  unit: z.enum(['KG', 'L', 'ST']),
+  lat: z.number(),
+  lng: z.number(),
+  img: z.string().optional(),
+});
+
+export class CreateProductDto extends createZodDto(CreateProductSchema) {}
