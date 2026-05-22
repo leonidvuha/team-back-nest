@@ -27,7 +27,12 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { email: ADMIN_EMAIL },
     update: { password: hashed },
-    create: { email: ADMIN_EMAIL, password: hashed, role: 'ADMIN' },
+    create: {
+      email: ADMIN_EMAIL,
+      password: hashed,
+      role: 'ADMIN',
+      fullName: 'Admin',
+    },
   });
   console.log(`Admin seeded: with id: ${admin.id}`);
 }
