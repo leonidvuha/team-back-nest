@@ -8,4 +8,4 @@ async function bootstrap() {
   app.useGlobalPipes(new ZodValidationPipe());
   await app.listen(process.env.PORT ?? 8080);
 }
-bootstrap();
+void bootstrap();
