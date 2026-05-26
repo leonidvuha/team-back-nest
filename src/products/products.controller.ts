@@ -6,10 +6,12 @@ import {
   Req,
   HttpCode,
   Get,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetProductsDto } from './dto/get-products.dto';
 
 @Controller('/products')
 export class ProductsController {
@@ -27,7 +29,7 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() query: GetProductsDto) {
+    return this.productsService.findAll(query);
   }
 }
