@@ -6,6 +6,8 @@ const GetProductsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(12),
   sort_by: z.enum(['created_at', 'price']).default('created_at'),
   order: z.enum(['asc', 'desc']).default('desc'),
+  category_id: z.coerce.number().int().optional(),
+  owner_id: z.string().optional(),
 });
 
 export class GetProductsDto extends createZodDto(GetProductsSchema) {}

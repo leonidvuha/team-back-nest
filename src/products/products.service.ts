@@ -79,17 +79,24 @@ export class ProductsService {
   }
 
   async findAll(dto: GetProductsDto) {
-    const { page, limit, sort_by, order } = dto;
+    const { page, limit, sort_by, order, category_id, owner_id } = dto;
     const skip = (page - 1) * limit;
     const sortField = sort_by === 'price' ? 'price' : 'createdAt';
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const where: { categoryId?: number; ownerId?: string } = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      ...(category_id && { categoryId: category_id }),
+      ...(owner_id && { ownerId: owner_id }),
+    };
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { [sortField]: order },
       }),
-      this.prisma.product.count(),
+      this.prisma.product.count({ where }),
     ]);
 
     return {
