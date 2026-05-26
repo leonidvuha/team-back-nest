@@ -56,6 +56,7 @@ export class ProductsService {
       title: product.title,
       description: product.description,
       price: product.price,
+      unit: product.unit,
       img_url: product.imageUrl,
       created_at: product.createdAt,
     };
@@ -74,6 +75,7 @@ export class ProductsService {
         title: p.title,
         description: p.description,
         price: p.price,
+        unit: p.unit,
         img_url: p.imageUrl,
         created_at: p.createdAt,
       })),
