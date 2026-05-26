@@ -1,8 +1,13 @@
-import { Injectable, BadGatewayException } from '@nestjs/common';
+import {
+  Injectable,
+  BadGatewayException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
+import { GetProductsDto } from './dto/get-products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -18,6 +23,17 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, ownerId: string) {
+    const existing = await this.prisma.product.findFirst({
+      where: {
+        title: dto.name,
+        ownerId: ownerId,
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('Product with this name already exists');
+    }
+
     let img_url: string | null = null;
 
     if (dto.img) {
@@ -56,15 +72,25 @@ export class ProductsService {
       title: product.title,
       description: product.description,
       price: product.price,
+      unit: product.unit,
       img_url: product.imageUrl,
       created_at: product.createdAt,
     };
   }
 
-  async findAll() {
-    const products = await this.prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(dto: GetProductsDto) {
+    const { page, limit, sort_by, order } = dto;
+    const skip = (page - 1) * limit;
+    const sortField = sort_by === 'price' ? 'price' : 'createdAt';
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        orderBy: { [sortField]: order },
+      }),
+      this.prisma.product.count(),
+    ]);
 
     return {
       products: products.map((p) => ({
@@ -74,9 +100,16 @@ export class ProductsService {
         title: p.title,
         description: p.description,
         price: p.price,
+        unit: p.unit,
         img_url: p.imageUrl,
         created_at: p.createdAt,
       })),
+      meta: {
+        current_page: page,
+        per_page: limit,
+        total_items: total,
+        total_pages: Math.ceil(total / limit),
+      },
     };
   }
 }

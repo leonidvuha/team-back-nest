@@ -9,11 +9,11 @@ const CreateProductSchema = z.object({
       message: 'category_id must be 1, 2, or 3',
     }),
   name: z.string().min(2).max(100),
-  description: z.string().optional(),
+  description: z.string().min(10).max(500).optional(),
   price: z.number().min(0.01).max(10000),
   unit: z.enum(['KG', 'L', 'ST']),
-  lat: z.number(),
-  lng: z.number(),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
   img: z.string().optional(),
 });
 
