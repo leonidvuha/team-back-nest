@@ -19,6 +19,6 @@ jobs:
           script: |
             cd /root/team-back-nest
             git pull origin main
-            npm install
+            npm ci
             npm run build
             pm2 restart farmer-back --update-env
