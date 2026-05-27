@@ -37,13 +37,13 @@ cp env.example .env
 Required variables:
 
 ```env
-DATABASE_URL="postgresql://farmer_user:farm12062026P@localhost:5432/farmer_db"
-JWT_SECRET=supersecretkey123
-ADMIN_EMAIL=admin@farm.com
-ADMIN_PASSWORD=admin123
-CLOUDINARY_CLOUD_NAME=do02lfyee
-CLOUDINARY_API_KEY=542724579649992
-CLOUDINARY_API_SECRET=57nCGpwZdtlUe2uM90BYnW25ODY
+DATABASE_URL=postgresql://user:password@localhost:5432/farmer_db
+JWT_SECRET=your_secret_key
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your_password
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
 ### Running with Docker
