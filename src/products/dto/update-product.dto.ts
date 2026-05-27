@@ -1,7 +1,7 @@
 import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
+import z from 'zod';
 
-const CreateProductSchema = z.object({
+const UpdateProductsSchema = z.object({
   category_id: z
     .number()
     .int()
@@ -32,4 +32,4 @@ const CreateProductSchema = z.object({
   img: z.string().optional(),
 });
 
-export class CreateProductDto extends createZodDto(CreateProductSchema) {}
+export class UpdateProductDto extends createZodDto(UpdateProductsSchema) {}
