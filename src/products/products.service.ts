@@ -1,7 +1,6 @@
 import {
   Injectable,
   BadGatewayException,
-  ConflictException,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -26,17 +25,6 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, ownerId: string) {
-    const existing = await this.prisma.product.findFirst({
-      where: {
-        title: dto.name,
-        ownerId: ownerId,
-      },
-    });
-
-    if (existing) {
-      throw new ConflictException('Product with this name already exists');
-    }
-
     let img_url: string | null = null;
 
     if (dto.img) {
