@@ -53,6 +53,7 @@ export class ProductsService {
         lat: dto.lat,
         lng: dto.lng,
         imageUrl: img_url ?? '',
+        tags: dto.tags ?? [],
       },
     });
 
@@ -65,6 +66,7 @@ export class ProductsService {
       price: product.price,
       unit: product.unit,
       img_url: product.imageUrl,
+      tags: product.tags,
       created_at: product.createdAt,
     };
   }
@@ -101,6 +103,7 @@ export class ProductsService {
         unit: p.unit,
         img_url: p.imageUrl,
         created_at: p.createdAt,
+        tags: p.tags,
       })),
       meta: {
         current_page: page,
@@ -150,6 +153,7 @@ export class ProductsService {
         lat: dto.lat,
         lng: dto.lng,
         imageUrl,
+        tags: dto.tags !== undefined ? (dto.tags as string[]) : undefined,
       },
     });
 
@@ -163,6 +167,7 @@ export class ProductsService {
       unit: updated.unit,
       img_url: updated.imageUrl,
       updated_at: updated.updatedAt,
+      tags: updated.tags,
     };
   }
 }
