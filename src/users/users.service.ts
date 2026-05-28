@@ -31,4 +31,13 @@ async updateProfile(id: string, dto: UpdateProfileDto) {
   return toProfileResponseDto(user);
 }
 
+ async getMyProducts(id: string) {
+  return this.prisma.product.findMany({
+    where: { ownerId: id },
+    orderBy: [
+      { status: 'asc' },     
+      { createdAt: 'desc' }, 
+    ],
+  });
+}
 }

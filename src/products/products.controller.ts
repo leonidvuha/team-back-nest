@@ -35,6 +35,7 @@ export class ProductsController {
   findAll(@Query() query: GetProductsDto) {
     return this.productsService.findAll(query);
   }
+  
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   update(

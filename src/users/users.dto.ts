@@ -34,14 +34,14 @@ export const UpdateProfileSchema = z.object({
     .nullable()
     .optional(),
 
-  latitude: z
+  lat: z
     .string()
     .trim()
     .regex(/^-?\d+(\.\d+)?$/, 'Invalid latitude format') 
     .nullable()
     .optional(),
 
-  longitude: z
+  lng: z
     .string()
     .trim()
     .regex(/^-?\d+(\.\d+)?$/, 'Invalid longitude format')

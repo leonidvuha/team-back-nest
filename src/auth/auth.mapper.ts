@@ -10,8 +10,8 @@ export const toProfileResponseDto = (user: User): ProfileResponseDto => {
     phone: user.phone,
     avatarUrl: user.avatarUrl,
     aboutMe: user.aboutMe,
-    latitude: user.latitude,
-    longitude: user.longitude,
+    lat: user.lat,
+    lng: user.lng,
     city: user.city,
   };
 };
