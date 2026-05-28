@@ -15,11 +15,15 @@ export const RegisterSchema = z.object({
   password: z
     .string()
     .trim()
-    .min(8, 'Min password length is 8 symbols')
+    .min(12, 'Min password length is 12 symbols')
     .max(72, 'Max password length is 72 symbols')
     .refine(
       (val) => /[A-Z]/.test(val),
       'Password must contain at least one uppercase letter',
+    )
+    .refine(
+      (val) => /[a-z]/.test(val),
+      'Password must contain at least one lowercase letter',
     )
     .refine(
       (val) => /[0-9]/.test(val),
@@ -40,7 +44,7 @@ export const LoginSchema = z.object({
   password: z
     .string()
     .trim()
-    .min(8, 'Min password length is 8 symbols')
+    .min(12, 'Min password length is 12 symbols')
     .max(72, 'Max password length is 72 symbols')
     .refine(
       (val) => !/<[^>]*>/g.test(val),
@@ -56,4 +60,10 @@ export interface ProfileResponseDto {
   email: string;
   fullName: string;
   role: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  aboutMe: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  city: string | null;
 }

@@ -7,5 +7,11 @@ export const toProfileResponseDto = (user: User): ProfileResponseDto => {
     email: user.email,
     fullName: user.fullName,
     role: user.role,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
+    aboutMe: user.aboutMe,
+    latitude: user.latitude,
+    longitude: user.longitude,
+    city: user.city,
   };
 };
