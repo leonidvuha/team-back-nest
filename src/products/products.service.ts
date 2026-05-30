@@ -10,6 +10,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
 import { GetProductsDto } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -77,7 +78,12 @@ export class ProductsService {
     const sortField = sort_by === 'price' ? 'price' : 'createdAt';
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const where: { categoryId?: number; ownerId?: string } = {
+    const where: {
+      categoryId?: number;
+      ownerId?: string;
+      status?: ProductStatus;
+    } = {
+      status: 'ACTIVE',
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
@@ -111,6 +117,29 @@ export class ProductsService {
         total_items: total,
         total_pages: Math.ceil(total / limit),
       },
+    };
+  }
+
+  async findMy(ownerId: string) {
+    const products = await this.prisma.product.findMany({
+      where: { ownerId },
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+    });
+
+    return {
+      products: products.map((p) => ({
+        id: p.id,
+        owner_id: p.ownerId,
+        category_id: p.categoryId,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        unit: p.unit,
+        img_url: p.imageUrl,
+        tags: p.tags,
+        status: p.status,
+        created_at: p.createdAt,
+      })),
     };
   }
 
@@ -153,7 +182,8 @@ export class ProductsService {
         lat: dto.lat,
         lng: dto.lng,
         imageUrl,
-        tags: dto.tags !== undefined ? (dto.tags as string[]) : undefined,
+        tags: dto.tags !== undefined ? dto.tags : undefined,
+        ...(dto.status && { status: dto.status }),
       },
     });
 
