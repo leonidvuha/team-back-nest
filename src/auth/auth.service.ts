@@ -7,6 +7,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto, RegisterDto } from './auth.dto';
 import bcrypt from 'bcryptjs';
+import { type Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,15 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  private setTokenCookie(res: Response, token: string) {
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  async register(dto: RegisterDto, res: Response) {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -30,10 +39,12 @@ export class AuthService {
         password: hashed,
       },
     });
-    return this.signToken(user.id, user.email, user.role);
+    const { access_token } = this.signToken(user.id, user.email, user.role);
+    this.setTokenCookie(res, access_token);
+    return { message: 'Registration successful' };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -44,7 +55,9 @@ export class AuthService {
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.signToken(user.id, user.email, user.role);
+    const { access_token } = this.signToken(user.id, user.email, user.role);
+    this.setTokenCookie(res, access_token);
+    return { message: 'Login successful' };
   }
 
   private signToken(sub: string, email: string, role: string) {
