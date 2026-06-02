@@ -30,7 +30,19 @@ const CreateProductSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   img: z.string().optional(),
-  tags: z.array(z.string().trim().min(2).max(25)).max(10).default([]),
+  tags: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(2)
+        .max(40)
+        .refine((val) => !/<[^>]*>/g.test(val), {
+          message: 'Tags cannot contain special characters like < >',
+        }),
+    )
+    .max(10)
+    .default([]),
 });
 
 export class CreateProductDto extends createZodDto(CreateProductSchema) {}

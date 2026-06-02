@@ -35,7 +35,13 @@ export class ProductsController {
   findAll(@Query() query: GetProductsDto) {
     return this.productsService.findAll(query);
   }
-  
+  @Get('my')
+  @UseGuards(AuthGuard('jwt'))
+  findMy(@Req() req: Request & { user: { id: string } }) {
+    const ownerId = req.user.id;
+    return this.productsService.findMy(ownerId);
+  }
+
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   update(
