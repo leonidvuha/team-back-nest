@@ -68,6 +68,10 @@ export class ProductsService {
       unit: product.unit,
       img_url: product.imageUrl,
       tags: product.tags,
+      status: product.status,
+      lat: product.lat,
+      lng: product.lng,
+      updated_at: product.updatedAt,
       created_at: product.createdAt,
     };
   }
@@ -108,8 +112,12 @@ export class ProductsService {
         price: p.price,
         unit: p.unit,
         img_url: p.imageUrl,
-        created_at: p.createdAt,
         tags: p.tags,
+        status: p.status,
+        lat: p.lat,
+        lng: p.lng,
+        created_at: p.createdAt,
+        updated_at: p.updatedAt,
       })),
       meta: {
         current_page: page,
@@ -138,7 +146,10 @@ export class ProductsService {
         img_url: p.imageUrl,
         tags: p.tags,
         status: p.status,
+        lat: p.lat,
+        lng: p.lng,
         created_at: p.createdAt,
+        updated_at: p.updatedAt,
       })),
     };
   }
@@ -196,8 +207,12 @@ export class ProductsService {
       price: updated.price,
       unit: updated.unit,
       img_url: updated.imageUrl,
-      updated_at: updated.updatedAt,
       tags: updated.tags,
+      status: updated.status,
+      lat: updated.lat,
+      lng: updated.lng,
+      created_at: updated.createdAt,
+      updated_at: updated.updatedAt,
     };
   }
 }
