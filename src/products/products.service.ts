@@ -3,6 +3,7 @@ import {
   BadGatewayException,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -11,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { GetProductsDto } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductStatus } from '@prisma/client';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Injectable()
 export class ProductsService {
@@ -68,6 +70,10 @@ export class ProductsService {
       unit: product.unit,
       img_url: product.imageUrl,
       tags: product.tags,
+      status: product.status,
+      lat: product.lat,
+      lng: product.lng,
+      updated_at: product.updatedAt,
       created_at: product.createdAt,
     };
   }
@@ -83,7 +89,7 @@ export class ProductsService {
       ownerId?: string;
       status?: ProductStatus;
     } = {
-      status: 'ACTIVE',
+      status: ProductStatus.ACTIVE,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
@@ -108,8 +114,12 @@ export class ProductsService {
         price: p.price,
         unit: p.unit,
         img_url: p.imageUrl,
-        created_at: p.createdAt,
         tags: p.tags,
+        status: p.status,
+        lat: p.lat,
+        lng: p.lng,
+        created_at: p.createdAt,
+        updated_at: p.updatedAt,
       })),
       meta: {
         current_page: page,
@@ -137,9 +147,70 @@ export class ProductsService {
         unit: p.unit,
         img_url: p.imageUrl,
         tags: p.tags,
-        status: p.status,
+        is_active: p.status === ProductStatus.ACTIVE,
+        lat: p.lat,
+        lng: p.lng,
         created_at: p.createdAt,
+        updated_at: p.updatedAt,
       })),
+    };
+  }
+
+  async findById(id: string, currentUserId?: string) {
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(id)) {
+      throw new BadRequestException({
+        error: 'Invalid Product ID format',
+        code: 'INVALID_ID',
+      });
+    }
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        owner: {
+          select: {
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+    if (!product) {
+      throw new NotFoundException({
+        error: 'Product not found',
+        code: 'PRODUCT_NOT_FOUND',
+      });
+    }
+    if (
+      product.status === ProductStatus.INACTIVE &&
+      product.ownerId !== currentUserId
+    ) {
+      throw new NotFoundException({
+        error: 'Product not found',
+        code: 'PRODUCT_NOT_FOUND',
+      });
+    }
+
+    return {
+      id: product.id,
+      owner_id: product.ownerId,
+      category_id: product.categoryId,
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      unit: product.unit,
+      img_url: product.imageUrl,
+      tags: product.tags,
+      lat: parseFloat(product.lat),
+      lng: parseFloat(product.lng),
+      contact: {
+        email: product.owner.email,
+        phone: product.owner.phone ?? null,
+      },
+      created_at: product.createdAt,
+      updated_at: product.updatedAt,
     };
   }
 
@@ -196,8 +267,42 @@ export class ProductsService {
       price: updated.price,
       unit: updated.unit,
       img_url: updated.imageUrl,
-      updated_at: updated.updatedAt,
       tags: updated.tags,
+      status: updated.status,
+      lat: updated.lat,
+      lng: updated.lng,
+      created_at: updated.createdAt,
+      updated_at: updated.updatedAt,
+    };
+  }
+  async updateStatus(id: string, dto: UpdateStatusDto, currentUserId: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException({
+        error: 'Product not found',
+        code: 'PRODUCT_NOT_FOUND',
+      });
+    }
+    if (product.ownerId !== currentUserId) {
+      throw new ForbiddenException({
+        error: 'You are not the owner of this product',
+        code: 'FORBIDDEN',
+      });
+    }
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: {
+        status: dto.is_active ? ProductStatus.ACTIVE : ProductStatus.INACTIVE,
+      },
+    });
+    return {
+      id: updated.id,
+      owner_id: updated.ownerId,
+      category_id: updated.categoryId,
+      title: updated.title,
+      is_active: updated.status === ProductStatus.ACTIVE,
+      updated_at: updated.updatedAt,
     };
   }
 }
