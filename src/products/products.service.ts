@@ -206,8 +206,8 @@ export class ProductsService {
       unit: product.unit,
       img_url: product.imageUrl,
       tags: product.tags,
-      lat: parseFloat(product.lat),
-      lng: parseFloat(product.lng),
+      lat: product.lat,
+      lng: product.lng,
       contact: {
         email: product.owner.email,
         phone: product.owner.phone ?? null,
