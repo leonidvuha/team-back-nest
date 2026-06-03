@@ -20,7 +20,7 @@ export class UsersService {
 
   async updateProfile(id: string, dto: UpdateProfileDto) {
     const data = Object.fromEntries(
-      Object.entries(dto).filter(([_, value]) => value !== undefined),
+      Object.entries(dto).filter(([, value]) => value !== undefined),
     );
 
     const user = await this.prisma.user.update({
