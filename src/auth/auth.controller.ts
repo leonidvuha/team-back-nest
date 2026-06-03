@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './auth.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
@@ -24,7 +32,7 @@ export class AuthController {
   }
 
   @Get('/me')
-  @UseGuards(JwtAuthGuard) 
+  @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: User) {
     return toProfileResponseDto(user);
   }

@@ -83,14 +83,15 @@ export class ProductsService {
     const skip = (page - 1) * limit;
     const sortField = sort_by === 'price' ? 'price' : 'createdAt';
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const where: {
       categoryId?: number;
       ownerId?: string;
       status?: ProductStatus;
+      deletedAt: null;
     } = {
       status: ProductStatus.ACTIVE,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      deletedAt: null,
+
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
     };
@@ -132,7 +133,7 @@ export class ProductsService {
 
   async findMy(ownerId: string) {
     const products = await this.prisma.product.findMany({
-      where: { ownerId },
+      where: { ownerId, deletedAt: null },
       orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
     });
 
@@ -177,12 +178,14 @@ export class ProductsService {
         },
       },
     });
-    if (!product) {
+
+    if (!product || product.deletedAt !== null) {
       throw new NotFoundException({
         error: 'Product not found',
         code: 'PRODUCT_NOT_FOUND',
       });
     }
+
     if (
       product.status === ProductStatus.INACTIVE &&
       product.ownerId !== currentUserId
@@ -217,7 +220,7 @@ export class ProductsService {
   async update(id: string, dto: UpdateProductDto, ownerId: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
-    if (!product) {
+    if (!product || product.deletedAt !== null) {
       throw new NotFoundException('Product not found');
     }
 
@@ -275,10 +278,11 @@ export class ProductsService {
       updated_at: updated.updatedAt,
     };
   }
+
   async updateStatus(id: string, dto: UpdateStatusDto, currentUserId: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
-    if (!product) {
+    if (!product || product.deletedAt !== null) {
       throw new NotFoundException({
         error: 'Product not found',
         code: 'PRODUCT_NOT_FOUND',
@@ -303,6 +307,47 @@ export class ProductsService {
       title: updated.title,
       is_active: updated.status === ProductStatus.ACTIVE,
       updated_at: updated.updatedAt,
+    };
+  }
+
+  async delete(id: string, currentUserId: string) {
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(id)) {
+      throw new BadRequestException({
+        error: 'Invalid Product ID format',
+        code: 'INVALID_ID',
+      });
+    }
+
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product || product.deletedAt !== null) {
+      throw new NotFoundException({
+        error: 'Product not found',
+        code: 'PRODUCT_NOT_FOUND',
+      });
+    }
+
+    if (product.ownerId !== currentUserId) {
+      throw new ForbiddenException({
+        error: 'You are not the owner of this product',
+        code: 'FORBIDDEN',
+      });
+    }
+
+    const updatedProduct = await this.prisma.product.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        status: ProductStatus.INACTIVE,
+      },
+    });
+
+    return {
+      message: 'Product successfully deleted',
+      id: updatedProduct.id,
     };
   }
 }

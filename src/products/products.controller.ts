@@ -10,6 +10,7 @@ import {
   Put,
   Param,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -69,5 +70,13 @@ export class ProductsController {
     @CurrentUser() user: { id: string },
   ) {
     return this.productsService.updateStatus(id, dto, user.id);
+  }
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async deleteProduct(
+    @Param('id') id: string,
+    @Req() req: { user: { id: string } },
+  ) {
+    return this.productsService.delete(id, req.user.id);
   }
 }
