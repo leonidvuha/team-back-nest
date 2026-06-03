@@ -10,9 +10,9 @@ export class CategoriesService {
     return this.prisma.category.findMany();
   }
 
-  async findOne(slug: string) {
+  async findOne(id: number) {
     return this.prisma.category.findUnique({
-      where: { slug },
+      where: { id },
       include: {
         products: {
           where: { status: ProductStatus.ACTIVE },

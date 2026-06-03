@@ -2,12 +2,7 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 const CreateProductSchema = z.object({
-  category_id: z
-    .number()
-    .int()
-    .refine((val) => [1, 2, 3].includes(val), {
-      message: 'category_id must be 1, 2, or 3',
-    }),
+  category_id: z.number().int().positive(),
   name: z
     .string()
     .trim()
