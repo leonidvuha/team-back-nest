@@ -87,8 +87,10 @@ export class ProductsService {
       categoryId?: number;
       ownerId?: string;
       status?: ProductStatus;
+      deletedAt?: null;
     } = {
       status: ProductStatus.ACTIVE,
+      deletedAt: null,
 
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
@@ -303,5 +305,25 @@ export class ProductsService {
       is_active: updated.status === ProductStatus.ACTIVE,
       updated_at: updated.updatedAt,
     };
+  }
+
+  async delete(id: string, ownerId: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product.ownerId !== ownerId) {
+      throw new ForbiddenException('You are not the owner of this product');
+    }
+
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        status: ProductStatus.INACTIVE,
+      },
+    });
   }
 }
