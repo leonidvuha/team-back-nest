@@ -83,14 +83,13 @@ export class ProductsService {
     const skip = (page - 1) * limit;
     const sortField = sort_by === 'price' ? 'price' : 'createdAt';
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const where: {
       categoryId?: number;
       ownerId?: string;
       status?: ProductStatus;
     } = {
       status: ProductStatus.ACTIVE,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
     };
