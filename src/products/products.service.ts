@@ -172,6 +172,7 @@ export class ProductsService {
       include: {
         owner: {
           select: {
+            fullName: true,
             email: true,
             phone: true,
           },
@@ -209,6 +210,7 @@ export class ProductsService {
       lat: product.lat,
       lng: product.lng,
       contact: {
+        fullname: product.owner.fullName,
         email: product.owner.email,
         phone: product.owner.phone ?? null,
       },

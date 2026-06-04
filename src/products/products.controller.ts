@@ -17,7 +17,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetProductsDto } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { JwtAuthGuard, OptinalJwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { UpdateStatusDto } from './dto/update-status.dto';
 
@@ -46,9 +46,9 @@ export class ProductsController {
     return this.productsService.findMy(user.id);
   }
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async getById(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    return this.productsService.findById(id, user.id);
+  @UseGuards(OptinalJwtAuthGuard)
+  async getById(@Param('id') id: string, @CurrentUser() user?: { id: string }) {
+    return this.productsService.findById(id, user?.id);
   }
 
   @Put(':id')
