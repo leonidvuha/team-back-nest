@@ -210,7 +210,7 @@ export class ProductsService {
       lat: product.lat,
       lng: product.lng,
       contact: {
-        fullname: product.owner.fullName,
+        fullName: product.owner.fullName,
         email: product.owner.email,
         phone: product.owner.phone ?? null,
       },
