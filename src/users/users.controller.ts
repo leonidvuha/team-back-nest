@@ -22,9 +22,9 @@ export class UsersController {
     return this.usersService.updateProfile(user.id, dto);
   }
 
-  @Get('/my-products')
+  /*@Get('/my-products')
   @UseGuards(JwtAuthGuard)
   getMyProducts(@CurrentUser() user: User, @Query() query: GetProductsDto) {
     return this.usersService.getMyProducts(user.id, query);
-  }
+  }*/
 }

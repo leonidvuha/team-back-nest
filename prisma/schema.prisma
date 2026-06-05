@@ -39,8 +39,8 @@ model User {
     updatedAt DateTime  @updatedAt @map("updated_at")
     createdAt DateTime  @default(now()) @map("created_at")
     aboutMe   String?   @map("about_me")
-    lat       String?   @map("latitude")
-    lng       String?   @map("longitude")
+    lat       Decimal?  @db.Decimal(9, 6)
+    lng       Decimal?  @db.Decimal(9, 6)
     city      String?
 
     products  Product[]
@@ -68,11 +68,11 @@ model Product {
     price       Decimal       @db.Decimal(10, 2)
     unit        Unit          
     imageUrl    String       @map("image_url")
-    tags        String[]      @default([])
-    lat         String
-    lng         String
+    tags        Tag[]
+    lat         Decimal       @db.Decimal(9, 6)
+    lng         Decimal       @db.Decimal(9, 6)
     status      ProductStatus @default(ACTIVE)
-    deletedAt    DateTime?
+    deletedAt   DateTime?
     updatedAt   DateTime @updatedAt @map("updated_at")
     createdAt   DateTime @default(now()) @map("created_at")
 
@@ -83,4 +83,12 @@ model Product {
     @@index([categoryId])
     @@index([status])
     @@map("products")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+
+  @@map("tags")
 }

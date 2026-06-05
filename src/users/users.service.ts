@@ -32,7 +32,7 @@ export class UsersService {
     return toProfileResponseDto(user);
   }
 
-  async getMyProducts(id: string, dto: GetProductsDto) {
+  /*async getMyProducts(id: string, dto: GetProductsDto) {
     const { page, limit, sort_by, order } = dto;
     const skip = (page - 1) * limit;
 
@@ -76,5 +76,5 @@ export class UsersService {
         total_pages: Math.ceil(total / limit),
       },
     };
-  }
+  } */
 }
