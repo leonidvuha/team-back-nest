@@ -7,7 +7,11 @@ export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.category.findMany();
+    return this.prisma.category.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
   }
 
   async findOne(id: number) {
