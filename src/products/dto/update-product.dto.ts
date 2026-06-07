@@ -23,30 +23,19 @@ const UpdateProductsSchema = z.object({
   price: z.number().min(0.01).max(10000),
   unit: z.enum(['KG', 'L', 'ST']),
   lat: z
-    .string()
-    .refine(
-      (val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num >= -90 && num <= 90;
-      },
-      {
-        message: 'Latitude must be a valid numeric string between -90 and 90',
-      },
-    )
-    .optional(),
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === 'string' ? parseFloat(val) : val))
+    .refine((num) => !isNaN(num) && num >= -90 && num <= 90, {
+      message: 'Latitude must be a number or numeric string between -90 and 90',
+    }),
+
   lng: z
-    .string()
-    .refine(
-      (val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num >= -180 && num <= 180;
-      },
-      {
-        message:
-          'Longitude must be a valid numeric string between -180 and 180',
-      },
-    )
-    .optional(),
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === 'string' ? parseFloat(val) : val))
+    .refine((num) => !isNaN(num) && num >= -180 && num <= 180, {
+      message:
+        'Longitude must be a number or numeric string between -180 and 180',
+    }),
   img: z.string().optional(),
   tags: z
     .array(

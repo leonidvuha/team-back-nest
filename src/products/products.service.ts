@@ -56,9 +56,17 @@ export class ProductsService {
         lat: dto.lat,
         lng: dto.lng,
         imageUrl: img_url ?? '',
-        tags: dto.tags ?? [],
+        tags: {
+          connectOrCreate: dto.tags?.map((tagName) => ({
+            where: { name: tagName },
+            create: { name: tagName },
+          })),
+        },
       },
+      include: { tags: true },
     });
+
+    const tags = product.tags as Array<{ id: number; name: string }>;
 
     return {
       id: product.id,
@@ -69,7 +77,7 @@ export class ProductsService {
       price: product.price,
       unit: product.unit,
       img_url: product.imageUrl,
-      tags: product.tags,
+      tags: tags.map((t) => t.name),
       status: product.status,
       lat: product.lat,
       lng: product.lng,
@@ -95,33 +103,38 @@ export class ProductsService {
       ...(category_id && { categoryId: category_id }),
       ...(owner_id && { ownerId: owner_id }),
     };
+
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         skip,
         take: limit,
         orderBy: { [sortField]: order },
+        include: { tags: true },
       }),
       this.prisma.product.count({ where }),
     ]);
 
     return {
-      products: products.map((p) => ({
-        id: p.id,
-        owner_id: p.ownerId,
-        category_id: p.categoryId,
-        title: p.title,
-        description: p.description,
-        price: p.price,
-        unit: p.unit,
-        img_url: p.imageUrl,
-        tags: p.tags,
-        status: p.status,
-        lat: p.lat,
-        lng: p.lng,
-        created_at: p.createdAt,
-        updated_at: p.updatedAt,
-      })),
+      products: products.map((p) => {
+        const productTags = p.tags as Array<{ id: number; name: string }>;
+        return {
+          id: p.id,
+          owner_id: p.ownerId,
+          category_id: p.categoryId,
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          unit: p.unit,
+          img_url: p.imageUrl,
+          tags: productTags.map((t) => t.name),
+          status: p.status,
+          lat: p.lat,
+          lng: p.lng,
+          created_at: p.createdAt,
+          updated_at: p.updatedAt,
+        };
+      }),
       meta: {
         current_page: page,
         per_page: limit,
@@ -131,29 +144,49 @@ export class ProductsService {
     };
   }
 
-  async findMy(ownerId: string) {
-    const products = await this.prisma.product.findMany({
-      where: { ownerId, deletedAt: null },
-      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-    });
+  async findMy(ownerId: string, dto: GetProductsDto) {
+    const { page, limit } = dto;
+    const skip = (page - 1) * limit;
+
+    const where = { ownerId, deletedAt: null };
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+        include: { tags: true },
+      }),
+      this.prisma.product.count({ where }),
+    ]);
 
     return {
-      products: products.map((p) => ({
-        id: p.id,
-        owner_id: p.ownerId,
-        category_id: p.categoryId,
-        title: p.title,
-        description: p.description,
-        price: p.price,
-        unit: p.unit,
-        img_url: p.imageUrl,
-        tags: p.tags,
-        is_active: p.status === ProductStatus.ACTIVE,
-        lat: p.lat,
-        lng: p.lng,
-        created_at: p.createdAt,
-        updated_at: p.updatedAt,
-      })),
+      products: products.map((p) => {
+        const productTags = p.tags as Array<{ id: number; name: string }>;
+        return {
+          id: p.id,
+          owner_id: p.ownerId,
+          category_id: p.categoryId,
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          unit: p.unit,
+          img_url: p.imageUrl,
+          tags: productTags.map((t) => t.name),
+          is_active: p.status === ProductStatus.ACTIVE,
+          lat: p.lat,
+          lng: p.lng,
+          created_at: p.createdAt,
+          updated_at: p.updatedAt,
+        };
+      }),
+      meta: {
+        current_page: page,
+        per_page: limit,
+        total_items: total,
+        total_pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -167,9 +200,11 @@ export class ProductsService {
         code: 'INVALID_ID',
       });
     }
+
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
+        tags: true,
         owner: {
           select: {
             fullName: true,
@@ -197,6 +232,14 @@ export class ProductsService {
       });
     }
 
+    const owner = product.owner as {
+      fullName: string;
+      email: string;
+      phone: string | null;
+    };
+
+    const tags = product.tags as Array<{ id: number; name: string }>;
+
     return {
       id: product.id,
       owner_id: product.ownerId,
@@ -206,13 +249,13 @@ export class ProductsService {
       price: product.price,
       unit: product.unit,
       img_url: product.imageUrl,
-      tags: product.tags,
+      tags: tags.map((t) => t.name),
       lat: product.lat,
       lng: product.lng,
       contact: {
-        fullName: product.owner.fullName,
-        email: product.owner.email,
-        phone: product.owner.phone ?? null,
+        fullName: owner.fullName,
+        email: owner.email,
+        phone: owner.phone ?? null,
       },
       created_at: product.createdAt,
       updated_at: product.updatedAt,
@@ -258,10 +301,22 @@ export class ProductsService {
         lat: dto.lat,
         lng: dto.lng,
         imageUrl,
-        tags: dto.tags !== undefined ? dto.tags : undefined,
+        tags:
+          dto.tags !== undefined
+            ? {
+                set: [],
+                connectOrCreate: dto.tags.map((tagName) => ({
+                  where: { name: tagName },
+                  create: { name: tagName },
+                })),
+              }
+            : undefined,
         ...(dto.status && { status: dto.status }),
       },
+      include: { tags: true },
     });
+
+    const updatedTags = updated.tags as Array<{ id: number; name: string }>;
 
     return {
       id: updated.id,
@@ -272,7 +327,7 @@ export class ProductsService {
       price: updated.price,
       unit: updated.unit,
       img_url: updated.imageUrl,
-      tags: updated.tags,
+      tags: updatedTags.map((t) => t.name),
       status: updated.status,
       lat: updated.lat,
       lng: updated.lng,

@@ -42,8 +42,11 @@ export class ProductsController {
   }
   @Get('my')
   @UseGuards(AuthGuard('jwt'))
-  async getMy(@CurrentUser() user: { id: string }) {
-    return this.productsService.findMy(user.id);
+  async getMy(
+    @CurrentUser() user: { id: string },
+    @Query() query: GetProductsDto,
+  ) {
+    return this.productsService.findMy(user.id, query);
   }
   @Get(':id')
   @UseGuards(OptinalJwtAuthGuard)
