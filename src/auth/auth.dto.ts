@@ -63,7 +63,7 @@ export interface ProfileResponseDto {
   phone: string | null;
   avatarUrl: string | null;
   aboutMe: string | null;
-  lat: string | null;
-  lng: string | null;
+  lat: number | null;
+  lng: number | null;
   city: string | null;
 }

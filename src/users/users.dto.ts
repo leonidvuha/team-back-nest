@@ -18,6 +18,7 @@ export const UpdateProfileSchema = z.object({
     .trim()
     .min(6, 'Invalid phone')
     .max(20, 'Invalid phone')
+    .regex(/^\+?[\d]+$/, 'Phone can only contain numbers and +')
     .nullable()
     .optional(),
 
@@ -34,19 +35,9 @@ export const UpdateProfileSchema = z.object({
     .nullable()
     .optional(),
 
-  lat: z
-    .string()
-    .trim()
-    .regex(/^-?\d+(\.\d+)?$/, 'Invalid latitude format')
-    .nullable()
-    .optional(),
+  lat: z.number().nullable().optional(),
 
-  lng: z
-    .string()
-    .trim()
-    .regex(/^-?\d+(\.\d+)?$/, 'Invalid longitude format')
-    .nullable()
-    .optional(),
+  lng: z.number().nullable().optional(),
 
   city: z
     .string()

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 const CreateProductSchema = z.object({
   category_id: z.number().int().positive(),
-  name: z
+  title: z
     .string()
     .trim()
     .min(2, 'Name must be at least 2 characters')
@@ -22,25 +22,21 @@ const CreateProductSchema = z.object({
     .optional(),
   price: z.number().min(0.01).max(10000),
   unit: z.enum(['KG', 'L', 'ST']),
-  lat: z.string().refine(
-    (val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= -90 && num <= 90;
-    },
-    {
-      message: 'Latitude must be a valid numeric string between -90 and 90',
-    },
-  ),
+  lat: z
+    .number({ message: 'Latitude is required' })
+    .min(-90)
+    .max(90)
+    .multipleOf(0.000001, {
+      message: 'Latitude cannot have more than 6 decimal places',
+    }),
 
-  lng: z.string().refine(
-    (val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= -180 && num <= 180;
-    },
-    {
-      message: 'Longitude must be a valid numeric string between -180 and 180',
-    },
-  ),
+  lng: z
+    .number({ message: 'Longitude is required' })
+    .min(-180)
+    .max(180)
+    .multipleOf(0.000001, {
+      message: 'Longitude cannot have more than 6 decimal places',
+    }),
   img: z.string().optional(),
   tags: z
     .array(
