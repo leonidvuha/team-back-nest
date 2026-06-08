@@ -11,7 +11,7 @@ export const toProfileResponseDto = (user: User): ProfileResponseDto => {
     avatarUrl: user.avatarUrl,
     aboutMe: user.aboutMe,
     lat: user.lat ? Number(user.lat) : null,
-lng: user.lng ? Number(user.lng) : null,
+    lng: user.lng ? Number(user.lng) : null,
     city: user.city,
   };
 };

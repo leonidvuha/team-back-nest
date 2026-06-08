@@ -14,13 +14,13 @@ export const UpdateProfileSchema = z.object({
     .optional(),
 
   phone: z
-  .string()
-  .trim()
-  .min(6, 'Invalid phone')
-  .max(20, 'Invalid phone')
-  .regex(/^\+?[\d]+$/, 'Phone can only contain numbers and +')
-  .nullable()
-  .optional(),
+    .string()
+    .trim()
+    .min(6, 'Invalid phone')
+    .max(20, 'Invalid phone')
+    .regex(/^\+?[\d]+$/, 'Phone can only contain numbers and +')
+    .nullable()
+    .optional(),
 
   avatarUrl: z.string().url('Invalid URL').nullable().optional(),
 
@@ -35,15 +35,9 @@ export const UpdateProfileSchema = z.object({
     .nullable()
     .optional(),
 
-  lat: z
-  .number()
-  .nullable()
-  .optional(),
+  lat: z.number().nullable().optional(),
 
-lng: z
-  .number()
-  .nullable()
-  .optional(),
+  lng: z.number().nullable().optional(),
 
   city: z
     .string()
