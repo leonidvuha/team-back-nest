@@ -232,12 +232,6 @@ export class ProductsService {
       });
     }
 
-    const owner = product.owner as {
-      fullName: string;
-      email: string;
-      phone: string | null;
-    };
-
     const tags = product.tags as Array<{ id: number; name: string }>;
 
     return {
@@ -253,9 +247,9 @@ export class ProductsService {
       lat: product.lat,
       lng: product.lng,
       contact: {
-        fullName: owner.fullName,
-        email: owner.email,
-        phone: owner.phone ?? null,
+        fullName: product.owner.fullName,
+        email: product.owner.email,
+        phone: product.owner.phone ?? null,
       },
       created_at: product.createdAt,
       updated_at: product.updatedAt,
