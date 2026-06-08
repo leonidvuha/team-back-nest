@@ -47,7 +47,7 @@ export class ProductsService {
 
     const product = await this.prisma.product.create({
       data: {
-        title: dto.name,
+        title: dto.title,
         description: dto.description ?? '',
         price: dto.price,
         unit: dto.unit,
@@ -77,10 +77,10 @@ export class ProductsService {
       price: product.price,
       unit: product.unit,
       img_url: product.imageUrl,
-      tags: tags.map((t) => t.name),
+      tags: tags.map((t) => ({ id: t.id, name: t.name })),
       status: product.status,
-      lat: product.lat,
-      lng: product.lng,
+      lat: +product.lat,
+      lng: +product.lng,
       updated_at: product.updatedAt,
       created_at: product.createdAt,
     };
@@ -127,10 +127,10 @@ export class ProductsService {
           price: p.price,
           unit: p.unit,
           img_url: p.imageUrl,
-          tags: productTags.map((t) => t.name),
+          tags: productTags.map((t) => ({ id: t.id, name: t.name })),
           status: p.status,
-          lat: p.lat,
-          lng: p.lng,
+          lat: +p.lat,
+          lng: +p.lng,
           created_at: p.createdAt,
           updated_at: p.updatedAt,
         };
@@ -173,10 +173,10 @@ export class ProductsService {
           price: p.price,
           unit: p.unit,
           img_url: p.imageUrl,
-          tags: productTags.map((t) => t.name),
-          is_active: p.status === ProductStatus.ACTIVE,
-          lat: p.lat,
-          lng: p.lng,
+          tags: productTags.map((t) => ({ id: t.id, name: t.name })),
+          status: p.status,
+          lat: +p.lat,
+          lng: +p.lng,
           created_at: p.createdAt,
           updated_at: p.updatedAt,
         };
@@ -232,12 +232,6 @@ export class ProductsService {
       });
     }
 
-    const owner = product.owner as {
-      fullName: string;
-      email: string;
-      phone: string | null;
-    };
-
     const tags = product.tags as Array<{ id: number; name: string }>;
 
     return {
@@ -249,13 +243,13 @@ export class ProductsService {
       price: product.price,
       unit: product.unit,
       img_url: product.imageUrl,
-      tags: tags.map((t) => t.name),
-      lat: product.lat,
-      lng: product.lng,
+      tags: tags.map((t) => ({ id: t.id, name: t.name })),
+      lat: +product.lat,
+      lng: +product.lng,
       contact: {
-        fullName: owner.fullName,
-        email: owner.email,
-        phone: owner.phone ?? null,
+        fullName: product.owner.fullName,
+        email: product.owner.email,
+        phone: product.owner.phone ?? null,
       },
       created_at: product.createdAt,
       updated_at: product.updatedAt,
@@ -293,7 +287,7 @@ export class ProductsService {
     const updated = await this.prisma.product.update({
       where: { id },
       data: {
-        title: dto.name,
+        title: dto.title,
         description: dto.description ?? product.description,
         price: dto.price,
         unit: dto.unit,
@@ -327,10 +321,10 @@ export class ProductsService {
       price: updated.price,
       unit: updated.unit,
       img_url: updated.imageUrl,
-      tags: updatedTags.map((t) => t.name),
+      tags: updatedTags.map((t) => ({ id: t.id, name: t.name })),
       status: updated.status,
-      lat: updated.lat,
-      lng: updated.lng,
+      lat: +updated.lat,
+      lng: +updated.lng,
       created_at: updated.createdAt,
       updated_at: updated.updatedAt,
     };
@@ -354,7 +348,7 @@ export class ProductsService {
     const updated = await this.prisma.product.update({
       where: { id },
       data: {
-        status: dto.is_active ? ProductStatus.ACTIVE : ProductStatus.INACTIVE,
+        status: dto.status ? ProductStatus.ACTIVE : ProductStatus.INACTIVE,
       },
     });
     return {
@@ -362,7 +356,7 @@ export class ProductsService {
       owner_id: updated.ownerId,
       category_id: updated.categoryId,
       title: updated.title,
-      is_active: updated.status === ProductStatus.ACTIVE,
+      status: updated.status,
       updated_at: updated.updatedAt,
     };
   }

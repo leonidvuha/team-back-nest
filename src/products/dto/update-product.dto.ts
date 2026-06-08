@@ -3,7 +3,7 @@ import z from 'zod';
 
 const UpdateProductsSchema = z.object({
   category_id: z.number().int().positive().optional(),
-  name: z
+  title: z
     .string()
     .trim()
     .min(2, 'Name must be at least 2 characters')
@@ -23,19 +23,22 @@ const UpdateProductsSchema = z.object({
   price: z.number().min(0.01).max(10000),
   unit: z.enum(['KG', 'L', 'ST']),
   lat: z
-    .union([z.number(), z.string()])
-    .transform((val) => (typeof val === 'string' ? parseFloat(val) : val))
-    .refine((num) => !isNaN(num) && num >= -90 && num <= 90, {
-      message: 'Latitude must be a number or numeric string between -90 and 90',
-    }),
+    .number({ message: 'Latitude must be a number' })
+    .min(-90)
+    .max(90)
+    .multipleOf(0.000001, {
+      message: 'Latitude cannot have more than 6 decimal places',
+    })
+    .optional(),
 
   lng: z
-    .union([z.number(), z.string()])
-    .transform((val) => (typeof val === 'string' ? parseFloat(val) : val))
-    .refine((num) => !isNaN(num) && num >= -180 && num <= 180, {
-      message:
-        'Longitude must be a number or numeric string between -180 and 180',
-    }),
+    .number({ message: 'Longitude must be a number' })
+    .min(-180)
+    .max(180)
+    .multipleOf(0.000001, {
+      message: 'Longitude cannot have more than 6 decimal places',
+    })
+    .optional(),
   img: z.string().optional(),
   tags: z
     .array(
