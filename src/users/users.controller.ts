@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateProfileDto } from './users.dto';
+import { UpdateProfileDto } from './dto/users.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { type User } from '@prisma/client';
+import { UploadAvatarDto } from './dto/upload-avatar.dto';
 
 @Controller('users')
 export class UsersController {
@@ -19,5 +20,14 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   updateProfile(@CurrentUser() user: User, @Body() dto: UpdateProfileDto) {
     return this.usersService.updateProfile(user.id, dto);
+  }
+
+  @Patch('avatar')
+  @UseGuards(JwtAuthGuard)
+  async uploadAvatar(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UploadAvatarDto,
+  ) {
+    return this.usersService.updateAvatar(userId, dto);
   }
 }
