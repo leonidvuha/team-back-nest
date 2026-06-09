@@ -30,4 +30,8 @@ export class UsersController {
   ) {
     return this.usersService.updateAvatar(userId, dto);
   }
+  @Get('active-sellers')
+  async getActiveSellers() {
+    return this.usersService.getActiveSellers();
+  }
 }

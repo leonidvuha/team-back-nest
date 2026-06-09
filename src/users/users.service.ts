@@ -76,4 +76,45 @@ export class UsersService {
       avatarUrl: updatedUser.avatarUrl,
     };
   }
+
+  async getActiveSellers() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        products: {
+          some: {
+            status: 'ACTIVE',
+          },
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        aboutMe: true,
+        products: {
+          where: {
+            status: 'ACTIVE',
+          },
+          select: {
+            id: true,
+            title: true,
+            price: true,
+          },
+        },
+      },
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      name: user.fullName,
+      contacts: {
+        email: user.email,
+        phone: user.phone ?? null,
+      },
+      about_me: user.aboutMe ?? '',
+      products: user.products,
+      active_products_count: user.products.length,
+    }));
+  }
 }
