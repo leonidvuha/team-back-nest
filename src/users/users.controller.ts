@@ -24,10 +24,7 @@ export class UsersController {
 
   @Patch('avatar')
   @UseGuards(JwtAuthGuard)
-  async uploadAvatar(
-    @CurrentUser('id') userId: string,
-    @Body() dto: UploadAvatarDto,
-  ) {
-    return this.usersService.updateAvatar(userId, dto);
+  async uploadAvatar(@CurrentUser() user: User, @Body() dto: UploadAvatarDto) {
+    return this.usersService.updateAvatar(user.id, dto);
   }
 }
