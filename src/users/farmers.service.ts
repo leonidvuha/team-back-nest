@@ -1,49 +1,84 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class FarmerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getFarmerById(id: string) {
-    const farmer = await this.prisma.user.findUnique({
-      where: { id },
+  async getActiveSellers() {
+    const sellers = await this.prisma.user.findMany({
+      where: {
+        products: {
+          some: {
+            status: 'ACTIVE',
+          },
+        },
+      },
       select: {
         id: true,
         fullName: true,
         aboutMe: true,
         email: true,
         phone: true,
-        lat: true,
-        lng: true,
-        products: {
-          where: { status: 'ACTIVE' },
+        _count: {
           select: {
-            id: true,
-            title: true,
-            price: true,
-            imageUrl: true,
+            products: {
+              where: { status: 'ACTIVE' },
+            },
           },
         },
       },
     });
-
-    if (!farmer) {
-      throw new NotFoundException('Farmer not found');
-    }
-    return {
-      id: farmer.id,
-      name: farmer.fullName,
-      about_me: farmer.aboutMe,
+    return sellers.map((seller) => ({
+      id: seller.id,
+      fullName: seller.fullName,
+      about_me: seller.aboutMe,
       contacts: {
-        email: farmer.email,
-        phone: farmer.phone ?? null,
+        email: seller.email,
+        phone: seller.phone,
       },
-      coordinates: {
-        lat: farmer.lat ? +farmer.lat : null,
-        lng: farmer.lng ? +farmer.lng : null,
-      },
-      products: farmer.products,
-    };
+      active_products_count: seller._count.products,
+    }));
+  }
+  async getFarmerById(id: string) {
+    try {
+      // Используем include, так как в схеме связь products официально прописана!
+      const farmer = await this.prisma.user.findUnique({
+        where: { id },
+        include: {
+          products: true, // Prisma сама вытащит все продукты этого юзера
+        },
+      });
+
+      if (!farmer) {
+        console.log(
+          `[Backend] Пользователь с ID ${id} не найден в базе данных Prisma`,
+        );
+        return null;
+      }
+
+      // Маппим данные из camelCase бэкенда в формат, который ждет фронтенд
+      return {
+        id: farmer.id,
+        name: farmer.fullName, // Из схемы: fullName -> переводим в name для фронта
+        about_me: farmer.aboutMe, // Из схемы: aboutMe -> в about_me
+        contacts: {
+          email: farmer.email,
+          phone: farmer.phone,
+        },
+        coordinates:
+          farmer.lat && farmer.lng
+            ? {
+                lat: Number(farmer.lat),
+                lng: Number(farmer.lng),
+              }
+            : null,
+        // Продукты отдаем массивом, фронтенд сам разберет их внутренние поля
+        products: farmer.products,
+      };
+    } catch {
+      // Пустой catch без переменной ошибки, чтобы ESLint не ругался
+      throw new Error('Fehler beim Laden des Landwirt-Profils');
+    }
   }
 }
