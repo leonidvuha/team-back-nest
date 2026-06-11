@@ -13,6 +13,8 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductStatus } from '@prisma/client';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { Prisma } from '@prisma/client';
+import { SearchProductsDto } from './dto/search-products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -399,6 +401,91 @@ export class ProductsService {
     return {
       message: 'Product successfully deleted',
       id: updatedProduct.id,
+    };
+  }
+
+  async searchProducts(dto: SearchProductsDto) {
+    const { page, limit, category_id, search, lat, lng, radius } = dto;
+    const skip = (page - 1) * limit;
+
+    const buildWhere = (term?: string): Prisma.ProductWhereInput => {
+      const words = term?.split(/\s+/).filter(Boolean) ?? [];
+      return {
+        status: ProductStatus.ACTIVE,
+        deletedAt: null,
+        ...(category_id && { categoryId: category_id }),
+        ...(words.length > 0 && {
+          AND: words.map((word) => ({
+            OR: [
+              { title: { contains: word, mode: 'insensitive' } },
+              {
+                tags: {
+                  some: { name: { contains: word, mode: 'insensitive' } },
+                },
+              },
+            ],
+          })),
+        }),
+        ...(lat &&
+          lng && {
+            lat: { gte: lat - radius / 111, lte: lat + radius / 111 },
+            lng: {
+              gte: lng - radius / (111 * Math.cos((lat * Math.PI) / 180)),
+              lte: lng + radius / (111 * Math.cos((lat * Math.PI) / 180)),
+            },
+          }),
+      };
+    };
+
+    let where = buildWhere(search);
+    let fallback = false;
+    let fallbackWord = '';
+
+    let total = await this.prisma.product.count({ where });
+
+    if (total === 0 && search && search.trim().split(/\s+/).length > 1) {
+      fallbackWord = search.trim().split(/\s+/)[0];
+      where = buildWhere(fallbackWord);
+      total = await this.prisma.product.count({ where });
+      fallback = true;
+    }
+
+    const products = await this.prisma.product.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: { tags: true },
+    });
+
+    return {
+      products: products.map((p) => {
+        const productTags = p.tags as Array<{ id: number; name: string }>;
+        return {
+          id: p.id,
+          owner_id: p.ownerId,
+          category_id: p.categoryId,
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          unit: p.unit,
+          img_url: p.imageUrl,
+          tags: productTags.map((t) => ({ id: t.id, name: t.name })),
+          status: p.status,
+          lat: +p.lat,
+          lng: +p.lng,
+          created_at: p.createdAt,
+          updated_at: p.updatedAt,
+        };
+      }),
+      meta: {
+        current_page: page,
+        per_page: limit,
+        total_items: total,
+        total_pages: Math.ceil(total / limit),
+        fallback,
+        fallback_word: fallbackWord,
+      },
     };
   }
 }
