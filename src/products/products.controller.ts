@@ -20,6 +20,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard, OptinalJwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { SearchProductsDto } from './dto/search-products.dto';
 
 @Controller('/products')
 export class ProductsController {
@@ -48,6 +49,13 @@ export class ProductsController {
   ) {
     return this.productsService.findMy(user.id, query);
   }
+
+  @Get('search')
+  search(@Query() query: SearchProductsDto) {
+    return this.productsService.searchProducts(query);
+  }
+
+  
   @Get(':id')
   @UseGuards(OptinalJwtAuthGuard)
   async getById(@Param('id') id: string, @CurrentUser() user?: { id: string }) {
@@ -82,4 +90,6 @@ export class ProductsController {
   ) {
     return this.productsService.delete(id, req.user.id);
   }
+
+  
 }
