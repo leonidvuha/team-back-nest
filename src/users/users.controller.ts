@@ -27,4 +27,8 @@ export class UsersController {
   async uploadAvatar(@CurrentUser() user: User, @Body() dto: UploadAvatarDto) {
     return this.usersService.updateAvatar(user.id, dto);
   }
+  @Get('active-sellers')
+  async getActiveSellers() {
+    return this.usersService.getActiveSellers();
+  }
 }
